@@ -30,6 +30,7 @@ Route.group(() => {
 
       Route.post("/", 'PostsController.savePost')
       Route.put("/:id?", 'PostsController.updatePost')
+      Route.patch("/:id?", "PostsController.deletePost")
       Route.get("/", "PostsController.listPosts")
       Route.get("/:id", "PostsController.getPost")
 

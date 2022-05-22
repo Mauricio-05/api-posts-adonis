@@ -1,5 +1,5 @@
 export default class FilterPosts {
-  private sql: string = "select * from posts where 1=1";
+  private sql: string = "select * from posts where estado = 1";
 
   private filterValueWhere: object = {
     Nombre: ` and UPPER(nombre) like ? `,

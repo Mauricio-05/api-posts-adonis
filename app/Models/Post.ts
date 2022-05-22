@@ -16,4 +16,7 @@ export default class Post extends BaseModel {
 
   @column.dateTime({autoCreate: true})
   public fecha: DateTime
+
+  @column()
+  public estado: number
 }

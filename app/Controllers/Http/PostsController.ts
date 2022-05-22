@@ -29,13 +29,15 @@ export default class PostsController {
     try {
       const post =  new Post();
 
-      const { nombrePost = "N/A", descripcion = "N/A" } = request.only([
+      const { nombrePost = "N/A", descripcion = "N/A", estado = 1 } = request.only([
         "nombrePost",
         "descripcion",
+        "estado"
       ]);
 
       post.nombre = nombrePost;
       post.descripcion = descripcion;
+      post.estado = estado
 
       await post.save();
 
@@ -58,7 +60,7 @@ export default class PostsController {
 
           if(Object.keys(queryString)?.length === 0){
 
-             posts = await Post.query();
+             posts = await Post.query().where("estado", "1");
 
           }else{
             
@@ -99,8 +101,10 @@ export default class PostsController {
   }
 
   public async updatePost ({ response, request }: HttpContextContract){
-    
-    const {id,nombrePost,descripcion} = request.only(["id", "nombrePost", "descripcion"]);
+      
+   try{
+     
+    const {id,nombrePost,descripcion, estado = 1} = request.only(["id", "nombrePost", "descripcion", "estado"]);
 
     const post  = await Post.find(id);
 
@@ -114,6 +118,7 @@ export default class PostsController {
 
       post.nombre = nombrePost
       post.descripcion = descripcion;
+      post.estado = estado;
 
       await post.save();
 
@@ -123,12 +128,47 @@ export default class PostsController {
         ok: post?.$isPersisted,
         message: `Post update successfull`
      })
+    }catch(err){
+      throw err
+    }
   }
+
+  public async deletePost ({request,response}: HttpContextContract) {
+
+    try{
+
+    const { id , estado = 0 } = request.only(["id", "estado"]);
+
+    const post  = await Post.find(id);
+
+    if(!post){
+      return response.status(404).notFound({
+        status: response.getStatus(),
+        ok: false,
+        message: "Not found."
+      })
+    }
+
+      post.estado = estado;
+
+      await post.save();
+
+
+     response.status(201).json({
+        status: response.getStatus(),
+        ok: post?.$isPersisted,
+        message: `Post delete successfull`
+     })
+
+    }catch(err){
+      throw err
+    }
+  } 
 
   private async stateDatabase () : Promise<boolean> {
 
       try {
-        
+
         const { report  }  = await HealthCheck.getReport()
 
         const [ infoDatabase ] = report.lucid.meta
